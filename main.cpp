@@ -47,7 +47,7 @@ private:
 template<typename Type>
 struct Wrapper
 {
-    Wrapper(Type&& t) : val(std::move(t)) 
+    Wrapper(const Type&& t) : val(std::move(t)) 
     { 
         std::cout << "Wrapper(" << typeid(val).name() << ")" << std::endl; 
     }
@@ -61,22 +61,43 @@ private:
     const Type& val;
 };
 
+template<>
+struct Wrapper<Point>
+{
+    using Type = Point;
+    
+    Wrapper(const Type&& t) : val(std::move(t)) 
+    { 
+        std::cout << "Wrapper(" << typeid(val).name() << ")" << std::endl; 
+    }
+    
+    void print()
+    {
+        std::cout << "Wrapper::print(" << val.toString() << ")" << std::endl;
+    }
+
+private:
+    const Type& val;
+};
+
 template<typename T, typename ...Args>
 void variadicHelper(T first, Args ... everythingElse)
 {
     Wrapper<T> w( std::forward<T>(first) );
-    variadicHelper( everythingElse... ); //recursive call
+    w.print();
+    variadicHelper( everythingElse ... ); //recursive call
 }
 
 template<typename T>
 void variadicHelper(T only)
 {
     Wrapper<T> w( std::forward<T>(only) );
+    w.print();
 }
 
 int main()
 {
-    variadicHelper( 3, std::string("burgers"), 2.5, Point{3.f, 0.14f} );
+    variadicHelper( 3, std::string("burgers"), 2.5, Point{3.f, 0.14f});
 }
 
 
