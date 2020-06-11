@@ -19,6 +19,7 @@ Commit your changes by clicking on the Source Control panel on the left, enterin
 #include <iostream>
 #include <string>
 #include <typeinfo>
+#include <utility>
 
 struct Point
 {
@@ -53,23 +54,24 @@ struct Wrapper
     
     void print()
     {
-        std::cout << "Wrapper::print::(" << val << ")" << std::endl;
+        std::cout << "Wrapper::print(" << val << ")" << std::endl;
     }
 
-
+private:
+    const Type& val;
 };
 
 template<typename T, typename ...Args>
 void variadicHelper(T first, Args ... everythingElse)
 {
-    Wrapper<T> Wrapper( first );
+    Wrapper<T> w( std::forward<T>(first) );
     variadicHelper( everythingElse... ); //recursive call
 }
 
 template<typename T>
 void variadicHelper(T only)
 {
-    Wrapper<T> Wrapper( only );
+    Wrapper<T> w( std::forward<T>(only) );
 }
 
 int main()
