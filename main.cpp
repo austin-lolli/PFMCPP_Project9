@@ -47,7 +47,7 @@ private:
 template<typename Type>
 struct Wrapper
 {
-    Wrapper(const Type&& t) : val(std::move(t)) 
+    Wrapper(Type&& t) : val(std::move(t)) 
     { 
         std::cout << "Wrapper(" << typeid(val).name() << ")" << std::endl; 
     }
@@ -58,7 +58,7 @@ struct Wrapper
     }
 
 private:
-    const Type& val;
+    Type val;
 };
 
 template<>
@@ -66,7 +66,7 @@ struct Wrapper<Point>
 {
     using Type = Point;
     
-    Wrapper(const Type&& t) : val(std::move(t)) 
+    Wrapper(Type&& t) : val(std::move(t)) 
     { 
         std::cout << "Wrapper(" << typeid(val).name() << ")" << std::endl; 
     }
@@ -77,20 +77,22 @@ struct Wrapper<Point>
     }
 
 private:
-    const Type& val;
+    Type val;
 };
 
 template<typename T, typename ...Args>
-void variadicHelper(T first, Args ... everythingElse)
+void variadicHelper(T&& first, Args&& ... everythingElse)
 {
+    std::cout << "Calling multi argument" << std::endl;
     Wrapper<T> w( std::forward<T>(first) );
     w.print();
-    variadicHelper( everythingElse ... ); //recursive call
+    variadicHelper( std::forward<Args>(everythingElse) ... ); //recursive call
 }
 
 template<typename T>
-void variadicHelper(T only)
+void variadicHelper(T&& only)
 {
+    std::cout << "calling single argument" << std::endl;
     Wrapper<T> w( std::forward<T>(only) );
     w.print();
 }
