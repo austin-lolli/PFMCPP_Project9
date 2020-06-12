@@ -19,6 +19,7 @@ Commit your changes by clicking on the Source Control panel on the left, enterin
 #include <iostream>
 #include <string>
 #include <typeinfo>
+#include <utility>
 
 struct Point
 {
@@ -50,11 +51,54 @@ struct Wrapper
     { 
         std::cout << "Wrapper(" << typeid(val).name() << ")" << std::endl; 
     }
+    
+    void print()
+    {
+        std::cout << "Wrapper::print(" << val << ")" << std::endl;
+    }
+
+private:
+    Type val;
 };
+
+template<>
+struct Wrapper<Point>
+{
+    using Type = Point;
+    
+    Wrapper(Type&& t) : val(std::move(t)) 
+    { 
+        std::cout << "Wrapper(" << typeid(val).name() << ")" << std::endl; 
+    }
+    
+    void print()
+    {
+        std::cout << "Wrapper::print(" << val.toString() << ")" << std::endl;
+    }
+
+private:
+    Type val;
+};
+
+template<typename T>
+void variadicHelper(T&& first)
+{
+    Wrapper<T> w( std::forward<T>(first) );
+    w.print();
+}
+
+template<typename T, typename ... Args>
+void variadicHelper(T&& first, Args&& ... everythingElse)
+{
+    Wrapper<T> w( std::forward<T>(first) );
+    w.print();
+    variadicHelper( std::forward<Args>(everythingElse) ... ); //recursive call
+}
+
 
 int main()
 {
-    variadicHelper( 3, std::string("burgers"), 2.5, Point{3.f, 0.14f} );
+    variadicHelper( 3, std::string("burgers"), 2.5, Point{3.f, 0.14f});
 }
 
 
