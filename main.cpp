@@ -80,22 +80,21 @@ private:
     Type val;
 };
 
-template<typename T, typename ...Args>
+template<typename T>
+void variadicHelper(T&& first)
+{
+    Wrapper<T> w( std::forward<T>(first) );
+    w.print();
+}
+
+template<typename T, typename ... Args>
 void variadicHelper(T&& first, Args&& ... everythingElse)
 {
-    std::cout << "Calling multi argument" << std::endl;
     Wrapper<T> w( std::forward<T>(first) );
     w.print();
     variadicHelper( std::forward<Args>(everythingElse) ... ); //recursive call
 }
 
-template<typename T>
-void variadicHelper(T&& only)
-{
-    std::cout << "calling single argument" << std::endl;
-    Wrapper<T> w( std::forward<T>(only) );
-    w.print();
-}
 
 int main()
 {
